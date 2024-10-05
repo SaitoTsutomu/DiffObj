@@ -4,7 +4,7 @@ bl_info = {
     "name": "DiffObj",
     "author": "tsutomu",
     "version": (0, 1),
-    "blender": (3, 1, 0),
+    "blender": (4, 2, 0),
     "support": "TESTING",
     "category": "Object",
     "description": "",

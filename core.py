@@ -10,20 +10,18 @@ class CDO_OT_diff_obj(bpy.types.Operator):
     bl_label = "Select Diff 2 Obj"
     bl_description = "Select the different vertices of 2 objects."
 
-    limit: bpy.props.IntProperty() = bpy.props.IntProperty(default=1000)  # type: ignore
+    limit: bpy.props.IntProperty() = bpy.props.IntProperty(default=1000)  # type: ignore[valid-type]
 
     def execute(self, context):
         objs = [obj for obj in context.selected_objects if obj.type == "MESH"]
-        if len(objs) != 2:
+        if len(objs) != 2:  # noqa: PLR2004
             self.report({"INFO"}, "Select 2 objects.")
             return {"CANCELLED"}
         bpy.ops.object.mode_set(mode="EDIT")  # for deselect
         bpy.ops.mesh.select_mode(type="VERT")
         bpy.ops.mesh.select_all(action="DESELECT")
         bpy.ops.object.mode_set(mode="OBJECT")  # for select
-        dif = set(tuple(vtx.co) for vtx in objs[0].data.vertices) ^ set(
-            tuple(vtx.co) for vtx in objs[1].data.vertices
-        )
+        dif = {tuple(vtx.co) for vtx in objs[0].data.vertices} ^ {tuple(vtx.co) for vtx in objs[1].data.vertices}
         for obj in objs:
             count = 0
             for i, vtx in enumerate(obj.data.vertices):

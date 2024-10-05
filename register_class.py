@@ -21,14 +21,13 @@ def _get_cls(module_name: str) -> list[type]:
     for name in dir(mdl):
         if not name.startswith("_"):
             cls = getattr(mdl, name)
-            if isinstance(cls, type):
-                if issubclass(cls, (Operator, Panel)):
-                    ui_classes.append(cls)
+            if isinstance(cls, type) and issubclass(cls, (Operator, Panel)):
+                ui_classes.append(cls)
     return ui_classes
 
 
-def _isprop(pr: object) -> bool:
-    return isinstance(pr, bpy.props._PropertyDeferred)
+def _is_prop(pr: object) -> bool:
+    return isinstance(pr, bpy.props._PropertyDeferred)  # noqa: SLF001
 
 
 # core.py内のOperatorクラスとPanelクラス
@@ -36,21 +35,20 @@ ui_classes: list[type] = []
 
 
 def register():
-    global ui_classes
     try:
-        from . import core
+        from . import core  # noqa: PLC0415
 
         importlib.reload(core)
         ui_classes[:] = core.ui_classes
-    except (ModuleNotFoundError, AttributeError):
+    except (ImportError, AttributeError):
         ui_classes[:] = []
 
     for ui_class in ui_classes:
         bpy.utils.register_class(ui_class)
-        for k, v in getmembers(ui_class, _isprop):
+        for k, v in getmembers(ui_class, _is_prop):
             setattr(bpy.types.Scene, k, v)
     try:
-        from .core import register as _register
+        from .core import register as _register  # noqa: PLC0415
 
         _register()
     except ImportError:
@@ -59,11 +57,11 @@ def register():
 
 def unregister():
     for ui_class in ui_classes:
-        for k, _ in getmembers(ui_class, _isprop):
+        for k, _ in getmembers(ui_class, _is_prop):
             delattr(bpy.types.Scene, k)
         bpy.utils.unregister_class(ui_class)
     try:
-        from .core import unregister as _unregister
+        from .core import unregister as _unregister  # noqa: PLC0415
 
         _unregister()
     except ImportError:
